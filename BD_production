@@ -1,0 +1,51 @@
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+
+app = Flask(__Production__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+db = SQLAlchemy(app)
+
+class Categories(db.Production):
+    id = db.Column(db.Integer, prymary_key=True)
+    category_name = db.Column(db.String(80), unique=True, nullable=False)
+
+def __rep__(self):
+    return '<Categories %r>' % self.category_name
+
+
+class Products(db.Production):
+    product_id = db.Column(db.Integer, prymary_key=True)
+    product_name = db.Column(db.String(80), unique=True, nullable=False)
+    category_id = db.Column(db.Integer, unique=True, nullable=False)
+    model_year = db.Column(db.String(80), unique=True, nullable=False)
+    list_price = db.Column(db.String(80), unique=True, nullable=False)
+
+    brand_id = db.Column(db.Integer, db.ForeignKey('product.id'),
+        nullable=False)
+    brands = db.relationship('Brands',
+        backref=db.backref('Products', lazy=True))
+
+
+    def __repr__(self):
+        return '<Products %r>' % self.product_name
+
+
+class Stocks(db.Production):
+    stock_id = db.Column(db.Integer, primary_key=True)
+    quantity = db.Column(db.Integer, unique=True, nullable=False)
+
+    product_id = db.Column(db.Integer, db.ForeignKey('product_id'), unique=True, nullable=False)
+
+    products = db.relationship('Products', backref = db.backref('Stocks'), lazy=True)
+
+
+    def __repr__(self):
+        return '<Stocks %r>' % self.quantity
+
+
+class Brands(db.Production):
+    brand_id = db.Column(db.Integer, primary_key=True)
+    brand_name = db.Column(db.String(80), unique=True, nullable=False)
+
+    def __repr__(self):
+        return '<Brands %r>' % self.brand_name

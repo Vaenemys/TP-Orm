@@ -1,0 +1,93 @@
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+
+app = Flask(__Sales__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+db = SQLAlchemy(app)
+
+
+class Customers(db.Sales):
+    customer_id = db.Column(db.Integer, primary_key=True)
+    first_name = db.Column(db.String(80), unique=True, nullable=False)
+    last_name = db.Column(db.String(80), unique=True, nullable=False)
+    phone = db.Column(db.Integer, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    street = db.Column(db.String(120), unique=True, nullable=False)
+    city = db.Column(db.String(120), unique=True, nullable=False)
+    state = db.Column(db.String(120), unique=True, nullable=False)
+    zip_code = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        return '<Customers %r>' % self.last_name
+
+from datetime import datetime
+
+class Orders(db.Sales):
+    order_id = db.Column(db.Integer, primary_key=True)
+    order_status = db.Column(db.String(80), unique=True, nullable=False)
+    order_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    required_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    shipped_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    
+    customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'),
+        nullable=False)
+    customer = db.relationship('Customer',
+        backref=db.backref('orders', lazy=True))
+
+    store_id = db.Column(db.Integer, db.ForeignKey('store.id'),
+        nullable=False)
+    stores = db.relationship('Stores',
+        backref=db.backref('orders', lazy=True))
+
+    staff_id = db.Column(db.Integer, db.ForeignKey('staff.id'),
+        nullable=False)
+    staffs = db.relationship('Staffs',
+        backref=db.backref('orders', lazy=True))
+
+    def __repr__(self):
+        return '<Orders %r>' % self.order_status
+
+class Stores(db.Sales):
+    store_id = db.Column(db.Integer, primary_key=True)
+    store_name = db.Column(db.String(80), unique=True, nullable=False)
+    phone = db.Column(db.Integer, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    street = db.Column(db.String(120), unique=True, nullable=False)
+    city = db.Column(db.String(120), unique=True, nullable=False)
+    state = db.Column(db.String(120), unique=True, nullable=False)
+    zip_code = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        return '<Stores %r>' % self.store_name
+
+class Order_Items(db.Sales):
+    item_id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    list_price = db.Column(db.String(120), unique=True, nullable=False)
+    discount = db.Column(db.String(120), unique=True, nullable=False)
+
+    order_id = db.Column(db.Integer, db.ForeignKey('order_id'), unique=True, nullable=False)
+
+    orders = db.relationship('Orders', backref = db.backref('Order_Items'), lazy=True)
+
+
+    def __repr__(self):
+        return '<Order_Items %r>' % self.product_id
+
+class Staff(db.Sales):
+    staff_id = db.Column(db.Integer, primary_key=True)
+    first_name = db.Column(db.String(80), unique=True, nullable=False)
+    last_name = db.Column(db.String(80), unique=True, nullable=False)
+    db.Column(db.String(120), unique=True, nullable=False)
+    active =phone = db.Column(db.Integer, nullable=False)
+    email =  db.Column(db.String(120), unique=True, nullable=False)
+    manager_id = db.Column(db.Integer, unique=True, nullable=False)
+
+    store_id = db.Column(db.Integer, db.ForeignKey('store_id'), unique=True, nullable=False)
+
+    stores = db.relationship('Stores', backref = db.backref('Staffs'), lazy=True)
+
+
+    def __repr__(self):
+        return '<Staffs %r>' % self.last_name
